@@ -1,7 +1,7 @@
-/* ipyexplain – styles for Explain, Fix, and Generate buttons */
+/* jupyter-vibe-coding - styles for Explain, Fix, and Generate buttons */
 
 /* ---- Error buttons (Explain + Fix) ---- */
-.ipyexplain-error-buttons {
+.jupyter-vibe-coding-error-buttons {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -12,8 +12,8 @@
 }
 
 /* ---- Shared button base ---- */
-.ipyexplain-explain-btn,
-.ipyexplain-fix-btn {
+.jupyter-vibe-coding-explain-btn,
+.jupyter-vibe-coding-fix-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -28,34 +28,34 @@
 }
 
 /* ---- Explain button colours ---- */
-.ipyexplain-explain-btn {
+.jupyter-vibe-coding-explain-btn {
   background-color: var(--jp-brand-color3, #cce5ff);
   color: var(--jp-content-font-color1);
 }
 
-.ipyexplain-explain-btn:hover:not(:disabled) {
+.jupyter-vibe-coding-explain-btn:hover:not(:disabled) {
   background-color: var(--jp-brand-color2, #99caff);
 }
 
 /* ---- Fix button colours ---- */
-.ipyexplain-fix-btn {
+.jupyter-vibe-coding-fix-btn {
   background-color: var(--jp-warn-color3, #fff3cd);
   color: var(--jp-content-font-color1);
 }
 
-.ipyexplain-fix-btn:hover:not(:disabled) {
+.jupyter-vibe-coding-fix-btn:hover:not(:disabled) {
   background-color: var(--jp-warn-color2, #ffe69c);
 }
 
 /* ---- Disabled state ---- */
-.ipyexplain-explain-btn:disabled,
-.ipyexplain-fix-btn:disabled {
+.jupyter-vibe-coding-explain-btn:disabled,
+.jupyter-vibe-coding-fix-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 /* ---- Explanation text panel ---- */
-.ipyexplain-explanation {
+.jupyter-vibe-coding-explanation {
   width: 100%;
   margin-top: 6px;
   padding: 8px 12px;

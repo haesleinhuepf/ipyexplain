@@ -1,10 +1,10 @@
-# ipyexplain
+# jupyter-vibe-coding
 
 A JupyterLab 4.x extension that adds AI-powered buttons to notebook cells:
 
 - **💡 Explain** – when a cell throws an error, click *Explain* to get a plain-language description of what went wrong, powered by an LLM via OpenAI's API.
 - **🔧 Fix** – click *Fix* to automatically replace the erroneous cell code with an LLM-corrected version.
-- **🪄 Generate Code** – a command (`ipyexplain:generate-code`) is contributed to the Cell toolbar via `jupyter.lab.toolbars`; it opens a prompt dialog and replaces the current code cell with generated code.
+- **🪄 Generate Code** – a command (`jupyter-vibe-coding:generate-code`) is contributed to the Cell toolbar via `jupyter.lab.toolbars`; it opens a prompt dialog and replaces the current code cell with generated code.
 
 ---
 
@@ -27,7 +27,7 @@ export OPENAI_API_KEY=sk-...
 ## Installation
 
 ```bash
-pip install ipyexplain
+pip install jupyter-vibe-coding
 ```
 
 This installs both the Python server extension and the pre-built JupyterLab
@@ -39,8 +39,8 @@ The development install works on Windows, macOS, and Linux without requiring
 Administrator/Developer Mode privileges.
 
 ```bash
-git clone https://github.com/haesleinhuepf/ipyexplain.git
-cd ipyexplain
+git clone https://github.com/haesleinhuepf/jupyter-vibe-coding.git
+cd jupyter-vibe-coding
 
 # 1. Install JupyterLab and build tools
 pip install jupyterlab
@@ -88,13 +88,13 @@ jupyter lab
 ## Architecture
 
 ```
-ipyexplain/
+jupyter-vibe-coding/
 ├── src/
 │   ├── index.ts      # JupyterLab plugin (frontend)
 │   └── handler.ts    # Helper for calling the Jupyter server REST API
 ├── style/
 │   └── index.css     # Button styles
-├── ipyexplain/
+├── jupyter_vibe_coding/
 │   ├── __init__.py   # Server extension registration
 │   ├── handlers.py   # Tornado handlers + LLM helper functions
 │   └── tests/
@@ -108,9 +108,9 @@ ipyexplain/
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
-| POST | `/ipyexplain/explain` | `{ename, evalue, traceback}` | `{explanation}` |
-| POST | `/ipyexplain/fix` | `{code, ename, evalue, traceback}` | `{fixed_code}` |
-| POST | `/ipyexplain/generate` | `{prompt}` | `{code}` |
+| POST | `/jupyter-vibe-coding/explain` | `{ename, evalue, traceback}` | `{explanation}` |
+| POST | `/jupyter-vibe-coding/fix` | `{code, ename, evalue, traceback}` | `{fixed_code}` |
+| POST | `/jupyter-vibe-coding/generate` | `{prompt}` | `{code}` |
 
 ---
 
@@ -118,7 +118,7 @@ ipyexplain/
 
 ```bash
 pip install -e ".[test]"
-pytest ipyexplain/tests/ -v
+pytest jupyter_vibe_coding/tests/ -v
 ```
 
 ---

@@ -4229,26 +4229,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ipyexplain@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "ipyexplain@workspace:."
-  dependencies:
-    "@jupyterlab/application": ^4.0.0
-    "@jupyterlab/apputils": ^4.0.0
-    "@jupyterlab/builder": ^4.0.0
-    "@jupyterlab/cells": ^4.0.0
-    "@jupyterlab/coreutils": ^6.0.0
-    "@jupyterlab/nbformat": ^4.0.0
-    "@jupyterlab/notebook": ^4.0.0
-    "@jupyterlab/outputarea": ^4.0.0
-    "@jupyterlab/services": ^7.0.0
-    "@types/react": ^18.0.0
-    npm-run-all: ^4.1.5
-    rimraf: ^5.0.1
-    typescript: ~5.0.2
-  languageName: unknown
-  linkType: soft
-
 "is-array-buffer@npm:^3.0.4, is-array-buffer@npm:^3.0.5":
   version: 3.0.5
   resolution: "is-array-buffer@npm:3.0.5"
@@ -4733,6 +4713,26 @@ __metadata:
   checksum: 0b40f712900ad0c846681ea2db23b6684b9d5eedf55807b4708c656f5894b63507d0e28ae10aa1bddbea551241035afe62b6df0800fc94c2e2806a7f3adecd7c
   languageName: node
   linkType: hard
+
+"jupyter-vibe-coding@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "jupyter-vibe-coding@workspace:."
+  dependencies:
+    "@jupyterlab/application": ^4.0.0
+    "@jupyterlab/apputils": ^4.0.0
+    "@jupyterlab/builder": ^4.0.0
+    "@jupyterlab/cells": ^4.0.0
+    "@jupyterlab/coreutils": ^6.0.0
+    "@jupyterlab/nbformat": ^4.0.0
+    "@jupyterlab/notebook": ^4.0.0
+    "@jupyterlab/outputarea": ^4.0.0
+    "@jupyterlab/services": ^7.0.0
+    "@types/react": ^18.0.0
+    npm-run-all: ^4.1.5
+    rimraf: ^5.0.1
+    typescript: ~5.0.2
+  languageName: unknown
+  linkType: soft
 
 "katex@npm:^0.16.25":
   version: 0.16.45

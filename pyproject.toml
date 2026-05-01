@@ -3,7 +3,7 @@ requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0
 build-backend = "hatchling.build"
 
 [project]
-name = "ipyexplain"
+name = "jupyter-vibe-coding"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
@@ -39,29 +39,29 @@ source = "nodejs"
 fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["ipyexplain/labextension"]
+artifacts = ["jupyter_vibe_coding/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.sdist.shared-data]
-"jupyter-config/server-config/ipyexplain.json" = "etc/jupyter/jupyter_server_config.d/ipyexplain.json"
+"jupyter-config/server-config/jupyter_vibe_coding.json" = "etc/jupyter/jupyter_server_config.d/jupyter_vibe_coding.json"
 
 [tool.hatch.build.targets.wheel]
-artifacts = ["ipyexplain/labextension"]
+artifacts = ["jupyter_vibe_coding/labextension"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyter-config/server-config/ipyexplain.json" = "etc/jupyter/jupyter_server_config.d/ipyexplain.json"
+"jupyter-config/server-config/jupyter_vibe_coding.json" = "etc/jupyter/jupyter_server_config.d/jupyter_vibe_coding.json"
 
 [tool.hatch.build.hooks.version]
-path = "ipyexplain/_version.py"
+path = "jupyter_vibe_coding/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
-    "ipyexplain/labextension/static/style.js",
-    "ipyexplain/labextension/package.json",
+    "jupyter_vibe_coding/labextension/static/style.js",
+    "jupyter_vibe_coding/labextension/package.json",
 ]
-skip-if-exists = ["ipyexplain/labextension/static/style.js"]
+skip-if-exists = ["jupyter_vibe_coding/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -71,7 +71,7 @@ npm = ["jlpm"]
 build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
-build_dir = "ipyexplain/labextension"
+build_dir = "jupyter_vibe_coding/labextension"
 
 [tool.jupyter-releaser.options]
 version-cmd = "hatch version"

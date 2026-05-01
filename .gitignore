@@ -44,8 +44,8 @@ tsconfig.tsbuildinfo
 .pnp.loader.mjs
 
 # JupyterLab build artifacts
-ipyexplain/labextension/
-ipyexplain/_version.py
+jupyter_vibe_coding/labextension/
+jupyter_vibe_coding/_version.py
 
 # Environments
 .env
@@ -63,3 +63,6 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+.ipynb_checkpoints/
+Untitled*.ipynb

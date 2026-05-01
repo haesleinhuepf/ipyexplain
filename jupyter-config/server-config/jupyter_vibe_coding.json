@@ -1,7 +1,7 @@
 {
   "ServerApp": {
     "jpserver_extensions": {
-      "ipyexplain": true
+      "jupyter_vibe_coding": true
     }
   }
 }

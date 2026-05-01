@@ -16,10 +16,10 @@ import { requestAPI } from './handler';
 /**
  * CSS class names used by the extension.
  */
-const EXPLAIN_BUTTON_CLASS = 'ipyexplain-explain-btn';
-const FIX_BUTTON_CLASS = 'ipyexplain-fix-btn';
-const ERROR_BUTTONS_CLASS = 'ipyexplain-error-buttons';
-const GENERATE_COMMAND = 'ipyexplain:generate-code';
+const EXPLAIN_BUTTON_CLASS = 'jupyter-vibe-coding-explain-btn';
+const FIX_BUTTON_CLASS = 'jupyter-vibe-coding-fix-btn';
+const ERROR_BUTTONS_CLASS = 'jupyter-vibe-coding-error-buttons';
+const GENERATE_COMMAND = 'jupyter-vibe-coding:generate-code';
 
 async function generateCodeInCurrentCell(
   cell: CodeCell,
@@ -50,7 +50,7 @@ async function generateCodeInCurrentCell(
 
     cell.model.sharedModel.setSource(response.code);
   } catch (err) {
-    console.error('ipyexplain: generate failed', err);
+    console.error('jupyter-vibe-coding: generate failed', err);
     window.alert(
       'Failed to generate code. Check that OPENAI_API_KEY is set.\n\n' + err
     );
@@ -124,17 +124,17 @@ function updateErrorButtons(cell: CodeCell): void {
 
       // Show the explanation in a panel below the buttons
       let explanationDiv = container.querySelector(
-        '.ipyexplain-explanation'
+        '.jupyter-vibe-coding-explanation'
       ) as HTMLDivElement | null;
       if (!explanationDiv) {
         explanationDiv = document.createElement('div');
-        explanationDiv.className = 'ipyexplain-explanation';
+        explanationDiv.className = 'jupyter-vibe-coding-explanation';
         container.appendChild(explanationDiv);
       }
       explanationDiv.textContent = response.explanation;
       explanationDiv.style.display = 'block';
     } catch (err) {
-      console.error('ipyexplain: explain failed', err);
+      console.error('jupyter-vibe-coding: explain failed', err);
       window.alert(
         'Failed to explain error. Check that OPENAI_API_KEY is set.\n\n' + err
       );
@@ -170,7 +170,7 @@ function updateErrorButtons(cell: CodeCell): void {
       // Replace the cell's code with the fixed code
       cell.model.sharedModel.setSource(response.fixed_code);
     } catch (err) {
-      console.error('ipyexplain: fix failed', err);
+      console.error('jupyter-vibe-coding: fix failed', err);
       window.alert(
         'Failed to fix code. Check that OPENAI_API_KEY is set.\n\n' + err
       );
@@ -237,13 +237,13 @@ function connectNotebook(
  * Main JupyterLab plugin.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'ipyexplain:plugin',
+  id: 'jupyter-vibe-coding:plugin',
   description:
     'Adds AI-powered Explain, Fix, and Generate buttons to notebook cells',
   autoStart: true,
   requires: [INotebookTracker],
   activate: (app: JupyterFrontEnd, tracker: INotebookTracker) => {
-    console.log('JupyterLab extension ipyexplain is activated!');
+    console.log('JupyterLab extension jupyter-vibe-coding is activated!');
 
     app.commands.addCommand(GENERATE_COMMAND, {
       label: '🪄 Generate Code',

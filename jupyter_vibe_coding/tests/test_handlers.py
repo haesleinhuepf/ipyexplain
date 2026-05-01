@@ -1,5 +1,5 @@
 """
-Unit tests for the ipyexplain Python backend.
+Unit tests for the jupyter-vibe-coding Python backend.
 
 These tests mock the OpenAI client so that no real API calls are made.
 """
@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ipyexplain.handlers import explain_error, fix_code, generate_code
+from jupyter_vibe_coding.handlers import explain_error, fix_code, generate_code
 
 
 # ---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ class TestExplainError:
     def test_returns_explanation(self):
         mock_response = _make_mock_response("This is a NameError explanation.")
 
-        with patch("ipyexplain.handlers._get_openai_client") as mock_client_factory:
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
             client = MagicMock()
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
@@ -48,7 +48,7 @@ class TestExplainError:
     def test_passes_correct_messages(self):
         mock_response = _make_mock_response("explanation")
 
-        with patch("ipyexplain.handlers._get_openai_client") as mock_client_factory:
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
             client = MagicMock()
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
@@ -77,7 +77,7 @@ class TestFixCode:
         raw = "```python\nprint('hello')\n```"
         mock_response = _make_mock_response(raw)
 
-        with patch("ipyexplain.handlers._get_openai_client") as mock_client_factory:
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
             client = MagicMock()
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
@@ -95,7 +95,7 @@ class TestFixCode:
         raw = "x = 1 + 1"
         mock_response = _make_mock_response(raw)
 
-        with patch("ipyexplain.handlers._get_openai_client") as mock_client_factory:
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
             client = MagicMock()
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
@@ -107,7 +107,7 @@ class TestFixCode:
     def test_passes_code_and_error_to_prompt(self):
         mock_response = _make_mock_response("```python\nfixed\n```")
 
-        with patch("ipyexplain.handlers._get_openai_client") as mock_client_factory:
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
             client = MagicMock()
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
@@ -130,7 +130,7 @@ class TestGenerateCode:
         raw = "```python\nimport pandas as pd\n```"
         mock_response = _make_mock_response(raw)
 
-        with patch("ipyexplain.handlers._get_openai_client") as mock_client_factory:
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
             client = MagicMock()
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
@@ -142,7 +142,7 @@ class TestGenerateCode:
     def test_passes_prompt_to_messages(self):
         mock_response = _make_mock_response("```python\npass\n```")
 
-        with patch("ipyexplain.handlers._get_openai_client") as mock_client_factory:
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
             client = MagicMock()
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
@@ -166,19 +166,19 @@ class TestGenerateCode:
 
 class TestExtractCodeBlock:
     def test_extracts_python_block(self):
-        from ipyexplain.handlers import _extract_code_block
+        from jupyter_vibe_coding.handlers import _extract_code_block
 
         text = "Here is code:\n```python\nx = 1\n```\nDone."
         assert _extract_code_block(text) == "x = 1"
 
     def test_extracts_plain_block(self):
-        from ipyexplain.handlers import _extract_code_block
+        from jupyter_vibe_coding.handlers import _extract_code_block
 
         text = "```\ny = 2\n```"
         assert _extract_code_block(text) == "y = 2"
 
     def test_falls_back_to_stripped_text(self):
-        from ipyexplain.handlers import _extract_code_block
+        from jupyter_vibe_coding.handlers import _extract_code_block
 
         text = "  x = 42  "
         assert _extract_code_block(text) == "x = 42"
@@ -193,5 +193,5 @@ class TestGetOpenAIClient:
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
         with pytest.raises(RuntimeError, match="OPENAI_API_KEY"):
-            from ipyexplain.handlers import _get_openai_client
+            from jupyter_vibe_coding.handlers import _get_openai_client
             _get_openai_client()

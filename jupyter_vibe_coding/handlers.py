@@ -1,17 +1,17 @@
 """
-REST API handlers for ipyexplain.
+REST API handlers for jupyter-vibe-coding.
 
 Endpoints
 ---------
-POST /ipyexplain/explain
+POST /jupyter-vibe-coding/explain
     Body: { "ename": str, "evalue": str, "traceback": str }
     Returns: { "explanation": str }
 
-POST /ipyexplain/fix
+POST /jupyter-vibe-coding/fix
     Body: { "code": str, "ename": str, "evalue": str, "traceback": str }
     Returns: { "fixed_code": str }
 
-POST /ipyexplain/generate
+POST /jupyter-vibe-coding/generate
     Body: { "prompt": str, "existing_code": str }
     Returns: { "code": str }
 """
@@ -42,7 +42,7 @@ def _get_openai_client():
     if not api_key:
         raise RuntimeError(
             "OPENAI_API_KEY environment variable is not set. "
-            "Please set it before using ipyexplain."
+            "Please set it before using jupyter-vibe-coding."
         )
     return OpenAI(api_key=api_key)
 
@@ -164,7 +164,7 @@ def generate_code(prompt: str, existing_code: str = "") -> str:
 # ---------------------------------------------------------------------------
 
 class ExplainHandler(APIHandler):
-    """POST /ipyexplain/explain"""
+    """POST /jupyter-vibe-coding/explain"""
 
     @tornado.web.authenticated
     def post(self):
@@ -177,13 +177,13 @@ class ExplainHandler(APIHandler):
             explanation = explain_error(ename, evalue, traceback)
             self.finish(json.dumps({"explanation": explanation}))
         except Exception as exc:
-            self.log.error("ipyexplain explain error: %s", tb_module.format_exc())
+            self.log.error("jupyter-vibe-coding explain error: %s", tb_module.format_exc())
             self.set_status(500)
             self.finish(json.dumps({"message": str(exc)}))
 
 
 class FixHandler(APIHandler):
-    """POST /ipyexplain/fix"""
+    """POST /jupyter-vibe-coding/fix"""
 
     @tornado.web.authenticated
     def post(self):
@@ -197,13 +197,13 @@ class FixHandler(APIHandler):
             fixed_code = fix_code(code, ename, evalue, traceback)
             self.finish(json.dumps({"fixed_code": fixed_code}))
         except Exception as exc:
-            self.log.error("ipyexplain fix error: %s", tb_module.format_exc())
+            self.log.error("jupyter-vibe-coding fix error: %s", tb_module.format_exc())
             self.set_status(500)
             self.finish(json.dumps({"message": str(exc)}))
 
 
 class GenerateHandler(APIHandler):
-    """POST /ipyexplain/generate"""
+    """POST /jupyter-vibe-coding/generate"""
 
     @tornado.web.authenticated
     def post(self):
@@ -215,7 +215,7 @@ class GenerateHandler(APIHandler):
             code = generate_code(prompt, existing_code)
             self.finish(json.dumps({"code": code}))
         except Exception as exc:
-            self.log.error("ipyexplain generate error: %s", tb_module.format_exc())
+            self.log.error("jupyter-vibe-coding generate error: %s", tb_module.format_exc())
             self.set_status(500)
             self.finish(json.dumps({"message": str(exc)}))
 
@@ -225,13 +225,13 @@ class GenerateHandler(APIHandler):
 # ---------------------------------------------------------------------------
 
 def setup_handlers(web_app):
-    """Register the ipyexplain URL handlers with the Jupyter server."""
+    """Register the jupyter-vibe-coding URL handlers with the Jupyter server."""
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
 
     handlers = [
-        (url_path_join(base_url, "ipyexplain", "explain"), ExplainHandler),
-        (url_path_join(base_url, "ipyexplain", "fix"), FixHandler),
-        (url_path_join(base_url, "ipyexplain", "generate"), GenerateHandler),
+        (url_path_join(base_url, "jupyter-vibe-coding", "explain"), ExplainHandler),
+        (url_path_join(base_url, "jupyter-vibe-coding", "fix"), FixHandler),
+        (url_path_join(base_url, "jupyter-vibe-coding", "generate"), GenerateHandler),
     ]
     web_app.add_handlers(host_pattern, handlers)
