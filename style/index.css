@@ -68,31 +68,3 @@
   white-space: pre-wrap;
   line-height: 1.5;
 }
-
-/* ---- Notebook bottom button ---- */
-.jupyter-vibe-coding-notebook-generate-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: 12px 0 16px;
-}
-
-.jupyter-vibe-coding-notebook-generate-btn {
-  padding: 8px 14px;
-  border: 1px solid var(--jp-border-color1);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: var(--jp-ui-font-size1);
-  font-family: var(--jp-ui-font-family);
-  background: var(--jp-brand-color2, #99caff);
-  color: var(--jp-ui-inverse-font-color1, #fff);
-  transition: background-color 0.15s ease, opacity 0.15s ease;
-}
-
-.jupyter-vibe-coding-notebook-generate-btn:hover:not(:disabled) {
-  background: var(--jp-brand-color1, #1e88e5);
-}
-
-.jupyter-vibe-coding-notebook-generate-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
