@@ -25,6 +25,9 @@ from jupyter_server.utils import url_path_join
 import tornado
 
 
+DEFAULT_MODEL = "gpt-4o-mini"
+
+
 # ---------------------------------------------------------------------------
 # Helper – call OpenAI
 # ---------------------------------------------------------------------------
@@ -38,20 +41,30 @@ def _get_openai_client():
             "The 'openai' package is required. Install it with: pip install openai"
         ) from exc
 
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = (
+        os.environ.get("JUPYTER_VIBE_CODING_API_KEY")
+        or os.environ.get("OPENAI_API_KEY")
+    )
     if not api_key:
         raise RuntimeError(
-            "OPENAI_API_KEY environment variable is not set. "
-            "Please set it before using jupyter-vibe-coding."
+            "No API key is configured. Set JUPYTER_VIBE_CODING_API_KEY "
+            "(preferred) or OPENAI_API_KEY before using jupyter-vibe-coding."
         )
-    return OpenAI(api_key=api_key)
+
+    base_url = os.environ.get("JUPYTER_VIBE_CODING_BASE_URL")
+    client_kwargs = {"api_key": api_key}
+    if base_url:
+        client_kwargs["base_url"] = base_url
+
+    return OpenAI(**client_kwargs)
 
 
-def _chat(messages: list, model: str = "gpt-4o-mini") -> str:
+def _chat(messages: list, model: str | None = None) -> str:
     """Send a chat completion request and return the assistant's text."""
     client = _get_openai_client()
+    selected_model = model or os.environ.get("JUPYTER_VIBE_CODING_MODEL") or DEFAULT_MODEL
     response = client.chat.completions.create(
-        model=model,
+        model=selected_model,
         messages=messages,
     )
     return response.choices[0].message.content or ""
@@ -59,6 +72,7 @@ def _chat(messages: list, model: str = "gpt-4o-mini") -> str:
 
 def _extract_code_block(text: str) -> str:
     """Extract the first fenced code block from *text*, or return *text* stripped."""
+    import os
     match = re.search(r"```(?:python)?\s*\n(.*?)```", text, re.DOTALL)
     if match:
         return match.group(1).strip()

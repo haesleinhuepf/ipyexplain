@@ -25,6 +25,19 @@ You also need an **OpenAI API key** exported as an environment variable:
 export OPENAI_API_KEY=sk-...
 ```
 
+Alternatively, you can use environment variables to configure a different OpenAI-API compatible LLM server:
+
+```bash
+# Preferred API key variable (falls back to OPENAI_API_KEY)
+export JUPYTER_VIBE_CODING_API_KEY=sk-...
+
+# Optional custom OpenAI-compatible endpoint
+export JUPYTER_VIBE_CODING_BASE_URL=https://api.openai.com/v1
+
+# Optional model override (default: gpt-4o-mini)
+export JUPYTER_VIBE_CODING_MODEL=gpt-4o-mini
+```
+
 ### Development install
 
 The development install works on Windows, macOS, and Linux without requiring
