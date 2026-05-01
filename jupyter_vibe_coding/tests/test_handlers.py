@@ -8,7 +8,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from jupyter_vibe_coding.handlers import explain_error, fix_code, generate_code
+from jupyter_vibe_coding.handlers import (
+    _get_runtime_config,
+    explain_error,
+    fix_code,
+    generate_code,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -174,6 +179,24 @@ class TestGenerateCode:
             model = call_kwargs.kwargs.get("model")
             assert model == "gpt-4.1-mini"
 
+    def test_runtime_config_model_overrides_environment(self, monkeypatch):
+        monkeypatch.setenv("JUPYTER_VIBE_CODING_MODEL", "gpt-4.1-mini")
+        mock_response = _make_mock_response("```python\npass\n```")
+
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
+            client = MagicMock()
+            client.chat.completions.create.return_value = mock_response
+            mock_client_factory.return_value = client
+
+            generate_code(
+                "write a no-op",
+                runtime_config={"enabled": True, "model": "gpt-5-mini"},
+            )
+
+            call_kwargs = client.chat.completions.create.call_args
+            model = call_kwargs.kwargs.get("model")
+            assert model == "gpt-5-mini"
+
 
 # ---------------------------------------------------------------------------
 # _extract_code_block helper
@@ -234,3 +257,55 @@ class TestGetOpenAIClient:
             kwargs = mock_openai.call_args.kwargs
             assert kwargs["api_key"] == "jvc-key"
             assert kwargs["base_url"] == "https://example.test/v1"
+
+    def test_runtime_config_overrides_env_key_and_base_url(self, monkeypatch):
+        monkeypatch.setenv("JUPYTER_VIBE_CODING_API_KEY", "env-key")
+        monkeypatch.setenv("JUPYTER_VIBE_CODING_BASE_URL", "https://env.test/v1")
+
+        with patch("openai.OpenAI") as mock_openai:
+            from jupyter_vibe_coding.handlers import _get_openai_client
+
+            _get_openai_client(
+                runtime_config={
+                    "enabled": True,
+                    "api_key": "runtime-key",
+                    "base_url": "https://runtime.test/v1",
+                }
+            )
+
+            kwargs = mock_openai.call_args.kwargs
+            assert kwargs["api_key"] == "runtime-key"
+            assert kwargs["base_url"] == "https://runtime.test/v1"
+
+
+# ---------------------------------------------------------------------------
+# runtime config parser
+# ---------------------------------------------------------------------------
+
+
+class TestRuntimeConfig:
+    def test_returns_none_when_missing(self):
+        assert _get_runtime_config({}) is None
+        assert _get_runtime_config(None) is None
+
+    def test_returns_disabled_when_checkbox_not_enabled(self):
+        config = _get_runtime_config({"config": {"enabled": False, "api_key": "x"}})
+        assert config == {"enabled": False}
+
+    def test_sanitizes_runtime_values(self):
+        config = _get_runtime_config(
+            {
+                "config": {
+                    "enabled": True,
+                    "base_url": "  https://example.test/v1  ",
+                    "api_key": "  sk-test  ",
+                    "model": "  gpt-4.1-mini  ",
+                }
+            }
+        )
+        assert config == {
+            "enabled": True,
+            "base_url": "https://example.test/v1",
+            "api_key": "sk-test",
+            "model": "gpt-4.1-mini",
+        }
