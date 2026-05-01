@@ -1,0 +1,70 @@
+/* jupyter-vibe-coding - styles for Explain, Fix, and Generate buttons */
+
+/* ---- Error buttons (Explain + Fix) ---- */
+.jupyter-vibe-coding-error-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px 6px 56px; /* align with output area (left-padding matches output prompt width) */
+  background: var(--jp-layout-color1);
+  border-top: 1px solid var(--jp-border-color2);
+}
+
+/* ---- Shared button base ---- */
+.jupyter-vibe-coding-explain-btn,
+.jupyter-vibe-coding-fix-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: var(--jp-ui-font-size1);
+  font-family: var(--jp-ui-font-family);
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+/* ---- Explain button colours ---- */
+.jupyter-vibe-coding-explain-btn {
+  background-color: var(--jp-brand-color3, #cce5ff);
+  color: var(--jp-content-font-color1);
+}
+
+.jupyter-vibe-coding-explain-btn:hover:not(:disabled) {
+  background-color: var(--jp-brand-color2, #99caff);
+}
+
+/* ---- Fix button colours ---- */
+.jupyter-vibe-coding-fix-btn {
+  background-color: var(--jp-warn-color3, #fff3cd);
+  color: var(--jp-content-font-color1);
+}
+
+.jupyter-vibe-coding-fix-btn:hover:not(:disabled) {
+  background-color: var(--jp-warn-color2, #ffe69c);
+}
+
+/* ---- Disabled state ---- */
+.jupyter-vibe-coding-explain-btn:disabled,
+.jupyter-vibe-coding-fix-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- Explanation text panel ---- */
+.jupyter-vibe-coding-explanation {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: var(--jp-layout-color2);
+  border: 1px solid var(--jp-border-color2);
+  font-size: var(--jp-ui-font-size1);
+  font-family: var(--jp-ui-font-family);
+  color: var(--jp-content-font-color1);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}

@@ -1,0 +1,16 @@
+{
+  "title": "jupyter-vibe-coding",
+  "description": "Settings for the jupyter-vibe-coding frontend extension.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false,
+  "jupyter.lab.toolbars": {
+    "Cell": [
+      {
+        "name": "jupyter-vibe-coding-wand-generate-command",
+        "command": "jupyter-vibe-coding:generate-code",
+        "rank": 0
+      }
+    ]
+  }
+}

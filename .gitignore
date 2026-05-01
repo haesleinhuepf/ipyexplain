@@ -1,0 +1,68 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-install.log
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# JS build artifacts
+lib/
+node_modules/
+*.js.map
+tsconfig.tsbuildinfo
+.eslintcache
+.stylelintcache
+
+# Yarn cache and generated files
+.yarn/cache/
+.yarn/__virtual__/
+.yarn/install-state.gz
+.pnp.cjs
+.pnp.loader.mjs
+
+# JupyterLab build artifacts
+jupyter_vibe_coding/labextension/
+jupyter_vibe_coding/_version.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+.ipynb_checkpoints/
+Untitled*.ipynb
