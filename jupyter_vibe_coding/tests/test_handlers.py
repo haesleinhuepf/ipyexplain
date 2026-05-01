@@ -159,6 +159,21 @@ class TestGenerateCode:
             assert "import pandas as pd" in user_msg
             assert "df = pd.read_csv('data.csv')" in user_msg
 
+    def test_uses_configured_model(self, monkeypatch):
+        monkeypatch.setenv("JUPYTER_VIBE_CODING_MODEL", "gpt-4.1-mini")
+        mock_response = _make_mock_response("```python\npass\n```")
+
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
+            client = MagicMock()
+            client.chat.completions.create.return_value = mock_response
+            mock_client_factory.return_value = client
+
+            generate_code("write a no-op")
+
+            call_kwargs = client.chat.completions.create.call_args
+            model = call_kwargs.kwargs.get("model")
+            assert model == "gpt-4.1-mini"
+
 
 # ---------------------------------------------------------------------------
 # _extract_code_block helper
@@ -190,8 +205,32 @@ class TestExtractCodeBlock:
 
 class TestGetOpenAIClient:
     def test_raises_when_key_missing(self, monkeypatch):
+        monkeypatch.delenv("JUPYTER_VIBE_CODING_API_KEY", raising=False)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
-        with pytest.raises(RuntimeError, match="OPENAI_API_KEY"):
+        with pytest.raises(RuntimeError, match="JUPYTER_VIBE_CODING_API_KEY"):
             from jupyter_vibe_coding.handlers import _get_openai_client
             _get_openai_client()
+
+    def test_prefers_jupyter_vibe_coding_api_key(self, monkeypatch):
+        monkeypatch.setenv("JUPYTER_VIBE_CODING_API_KEY", "jvc-key")
+        monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
+
+        with patch("openai.OpenAI") as mock_openai:
+            from jupyter_vibe_coding.handlers import _get_openai_client
+            _get_openai_client()
+
+            kwargs = mock_openai.call_args.kwargs
+            assert kwargs["api_key"] == "jvc-key"
+
+    def test_passes_base_url_when_configured(self, monkeypatch):
+        monkeypatch.setenv("JUPYTER_VIBE_CODING_API_KEY", "jvc-key")
+        monkeypatch.setenv("JUPYTER_VIBE_CODING_BASE_URL", "https://example.test/v1")
+
+        with patch("openai.OpenAI") as mock_openai:
+            from jupyter_vibe_coding.handlers import _get_openai_client
+            _get_openai_client()
+
+            kwargs = mock_openai.call_args.kwargs
+            assert kwargs["api_key"] == "jvc-key"
+            assert kwargs["base_url"] == "https://example.test/v1"
