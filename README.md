@@ -1,26 +1,12 @@
 # jupyter-vibe-coding
 
-A JupyterLab 4.x extension that adds AI-powered buttons to notebook cells:
+A JupyterLab 4.x extension that adds AI-powered buttons to notebook cells
+
+![](ddocs/images/screenshot.png)
 
 - **💡 Explain** – when a cell throws an error, click *Explain* to get a plain-language description of what went wrong, powered by an LLM via OpenAI's API.
 - **🔧 Fix** – click *Fix* to automatically replace the erroneous cell code with an LLM-corrected version.
 - **🪄 Generate Code** – a command (`jupyter-vibe-coding:generate-code`) is contributed to the Cell toolbar via `jupyter.lab.toolbars`; it opens a prompt dialog and replaces the current code cell with generated code.
-
----
-
-## Requirements
-
-| Component | Version |
-|-----------|---------|
-| JupyterLab | ≥ 4.0, < 5 |
-| Python | ≥ 3.8 |
-| openai | ≥ 1.0 |
-
-You also need an **OpenAI API key** exported as an environment variable:
-
-```bash
-export OPENAI_API_KEY=sk-...
-```
 
 ---
 
@@ -32,6 +18,12 @@ pip install jupyter-vibe-coding
 
 This installs both the Python server extension and the pre-built JupyterLab
 frontend extension.
+
+You also need an **OpenAI API key** exported as an environment variable:
+
+```bash
+export OPENAI_API_KEY=sk-...
+```
 
 ### Development install
 
@@ -72,30 +64,12 @@ jupyter labextension list
 You should see `jupyter_vibe_coding` in the server list and
 `jupyter-vibe-coding` in the labextension list.
 
-> **Note for Windows users:** Do *not* run `jupyter labextension develop . --overwrite`
-> — that command requires Developer Mode for symlink creation. The steps above
-> copy the pre-built extension into the package directory, so no symlinks are needed.
-
 To pick up TypeScript source changes during development, rebuild and restart:
 
 ```bash
 jlpm run build
 jupyter lab
 ```
-
-### Troubleshooting: server loads but no GUI appears
-
-If the Python package installs but the frontend UI is missing, run:
-
-```bash
-jlpm run build
-pip install -e .
-jupyter labextension list
-```
-
-On Windows, path separators in frontend build metadata can prevent JupyterLab
-from loading the remote entry bundle. The build now normalizes that metadata
-automatically.
 
 ---
 
