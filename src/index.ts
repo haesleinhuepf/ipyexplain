@@ -104,6 +104,30 @@ class GenerateDialogBody
   private readonly baseUrlInput: HTMLInputElement;
   private readonly apiKeyInput: HTMLInputElement;
   private readonly modelInput: HTMLInputElement;
+  private readonly onWindowKeyDown = (event: KeyboardEvent): void => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    const target = event.target as EventTarget | null;
+    const isPromptTarget =
+      target === this.promptInput || document.activeElement === this.promptInput;
+
+    if (!isPromptTarget) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+      this.submitDialog();
+      return;
+    }
+
+    this.insertNewlineAtCursor();
+  };
 
   constructor(initialConfig: AdvancedConfig) {
     super({ node: Private.createGenerateDialogNode() });
@@ -152,21 +176,21 @@ class GenerateDialogBody
     this.apiKeyInput.value = initialConfig.api_key;
     this.modelInput.value = initialConfig.model;
 
-    this.promptInput.addEventListener('keydown', event => {
-      if (
-        event.key === 'Enter' &&
-        (event.shiftKey || event.ctrlKey || event.metaKey)
-      ) {
-        event.preventDefault();
-        this.submitDialog();
-      }
-    });
+    window.addEventListener('keydown', this.onWindowKeyDown, true);
 
     this.advancedCheckbox.addEventListener('change', () => {
       this.updateAdvancedVisibility();
     });
 
     this.updateAdvancedVisibility();
+  }
+
+  dispose(): void {
+    if (this.isDisposed) {
+      return;
+    }
+    window.removeEventListener('keydown', this.onWindowKeyDown, true);
+    super.dispose();
   }
 
   getValue(): GenerateDialogValue {
@@ -188,11 +212,22 @@ class GenerateDialogBody
   }
 
   private submitDialog(): void {
-    const dialogNode = this.node.closest('.jp-Dialog');
-    const acceptButton = dialogNode?.querySelector(
-      '.jp-Dialog-button.jp-mod-accept'
+    const dialogNode = this.node.closest('.jp-Dialog') ?? document.body;
+    const acceptButton = dialogNode.querySelector(
+      '.jp-mod-accept'
     ) as HTMLButtonElement | null;
     acceptButton?.click();
+  }
+
+  private insertNewlineAtCursor(): void {
+    const input = this.promptInput;
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    const before = input.value.slice(0, start);
+    const after = input.value.slice(end);
+    input.value = `${before}\n${after}`;
+    const nextPos = start + 1;
+    input.setSelectionRange(nextPos, nextPos);
   }
 }
 
