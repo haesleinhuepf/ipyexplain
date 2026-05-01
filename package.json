@@ -1,110 +1,110 @@
 {
-  "name": "jupyter-vibe-coding",
-  "version": "0.1.0",
-  "description": "JupyterLab extension that adds AI-powered Explain, Fix, and Generate buttons to notebook cells",
-  "keywords": [
-    "jupyter",
-    "jupyterlab",
-    "jupyterlab-extension",
-    "llm",
-    "openai"
-  ],
-  "homepage": "https://github.com/haesleinhuepf/jupyter-vibe-coding",
-  "bugs": {
-    "url": "https://github.com/haesleinhuepf/jupyter-vibe-coding/issues"
-  },
-  "license": "BSD-3-Clause",
-  "author": {
-    "name": "haesleinhuepf",
-    "email": ""
-  },
-  "files": [
-    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "schema/*.json",
-    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
-    "style/index.js"
-  ],
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "style": "style/index.css",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/haesleinhuepf/jupyter-vibe-coding.git"
-  },
-  "scripts": {
-    "build": "jlpm run build:lib && jlpm run build:labextension:dev",
-    "build:prod": "jlpm run clean && jlpm run build:lib:prod && jlpm run build:labextension",
-    "build:labextension": "jupyter labextension build . && node tools/normalize-labextension-package.js",
-    "build:labextension:dev": "jupyter labextension build --development True . && node tools/normalize-labextension-package.js",
-    "build:lib": "tsc --sourceMap",
-    "build:lib:prod": "tsc",
-    "clean": "jlpm run clean:lib",
-    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "clean:labextension": "rimraf jupyter_vibe_coding/labextension jupyter_vibe_coding/_version.py",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
-    "install:extension": "jlpm run build",
-    "watch": "run-p watch:src watch:labextension",
-    "watch:src": "tsc -w --sourceMap",
-    "watch:labextension": "jupyter labextension watch ."
-  },
-  "dependencies": {
-    "@jupyterlab/application": "^4.0.0",
-    "@jupyterlab/apputils": "^4.0.0",
-    "@jupyterlab/cells": "^4.0.0",
-    "@jupyterlab/coreutils": "^6.0.0",
-    "@jupyterlab/nbformat": "^4.0.0",
-    "@jupyterlab/notebook": "^4.0.0",
-    "@jupyterlab/outputarea": "^4.0.0",
-    "@jupyterlab/services": "^7.0.0"
-  },
-  "devDependencies": {
-    "@jupyterlab/builder": "^4.0.0",
-    "@types/react": "^18.0.0",
-    "npm-run-all": "^4.1.5",
-    "rimraf": "^5.0.1",
-    "typescript": "~5.0.2"
-  },
-  "sideEffects": [
-    "style/*.css",
-    "style/index.js"
-  ],
-  "styleModule": "style/index.js",
-  "publishConfig": {
-    "access": "public"
-  },
-  "jupyterlab": {
-    "extension": true,
-    "schemaDir": "schema",
-    "outputDir": "jupyter_vibe_coding/labextension",
-    "sharedPackages": {
-      "@jupyterlab/application": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@jupyterlab/apputils": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@jupyterlab/cells": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@jupyterlab/coreutils": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@jupyterlab/notebook": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@jupyterlab/outputarea": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@jupyterlab/services": {
-        "bundled": false,
-        "singleton": true
-      }
+    "name": "jupyter-vibe-coding",
+    "version": "0.1.1",
+    "description": "JupyterLab extension that adds AI-powered Explain, Fix, and Generate buttons to notebook cells",
+    "keywords": [
+        "jupyter",
+        "jupyterlab",
+        "jupyterlab-extension",
+        "llm",
+        "openai"
+    ],
+    "homepage": "https://github.com/haesleinhuepf/jupyter-vibe-coding",
+    "bugs": {
+        "url": "https://github.com/haesleinhuepf/jupyter-vibe-coding/issues"
+    },
+    "license": "BSD-3-Clause",
+    "author": {
+        "name": "haesleinhuepf",
+        "email": ""
+    },
+    "files": [
+        "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+        "schema/*.json",
+        "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
+        "style/index.js"
+    ],
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "style": "style/index.css",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/haesleinhuepf/jupyter-vibe-coding.git"
+    },
+    "scripts": {
+        "build": "jlpm run build:lib && jlpm run build:labextension:dev",
+        "build:prod": "jlpm run clean && jlpm run build:lib:prod && jlpm run build:labextension",
+        "build:labextension": "jupyter labextension build . && node tools/normalize-labextension-package.js",
+        "build:labextension:dev": "jupyter labextension build --development True . && node tools/normalize-labextension-package.js",
+        "build:lib": "tsc --sourceMap",
+        "build:lib:prod": "tsc",
+        "clean": "jlpm run clean:lib",
+        "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+        "clean:labextension": "rimraf jupyter_vibe_coding/labextension jupyter_vibe_coding/_version.py",
+        "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
+        "install:extension": "jlpm run build",
+        "watch": "run-p watch:src watch:labextension",
+        "watch:src": "tsc -w --sourceMap",
+        "watch:labextension": "jupyter labextension watch ."
+    },
+    "dependencies": {
+        "@jupyterlab/application": "^4.0.0",
+        "@jupyterlab/apputils": "^4.0.0",
+        "@jupyterlab/cells": "^4.0.0",
+        "@jupyterlab/coreutils": "^6.0.0",
+        "@jupyterlab/nbformat": "^4.0.0",
+        "@jupyterlab/notebook": "^4.0.0",
+        "@jupyterlab/outputarea": "^4.0.0",
+        "@jupyterlab/services": "^7.0.0"
+    },
+    "devDependencies": {
+        "@jupyterlab/builder": "^4.0.0",
+        "@types/react": "^18.0.0",
+        "npm-run-all": "^4.1.5",
+        "rimraf": "^5.0.1",
+        "typescript": "~5.0.2"
+    },
+    "sideEffects": [
+        "style/*.css",
+        "style/index.js"
+    ],
+    "styleModule": "style/index.js",
+    "publishConfig": {
+        "access": "public"
+    },
+    "jupyterlab": {
+        "extension": true,
+        "schemaDir": "schema",
+        "outputDir": "jupyter_vibe_coding/labextension",
+        "sharedPackages": {
+            "@jupyterlab/application": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@jupyterlab/apputils": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@jupyterlab/cells": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@jupyterlab/coreutils": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@jupyterlab/notebook": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@jupyterlab/outputarea": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@jupyterlab/services": {
+                "bundled": false,
+                "singleton": true
+            }
+        }
     }
-  }
 }
