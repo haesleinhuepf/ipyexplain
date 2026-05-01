@@ -246,7 +246,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     console.log('JupyterLab extension jupyter-vibe-coding is activated!');
 
     app.commands.addCommand(GENERATE_COMMAND, {
-      label: '🪄 Generate Code',
+      label: '🪄',
       caption: 'Generate code and replace the current code cell content',
       isEnabled: () => {
         const panel = tracker.currentWidget;
