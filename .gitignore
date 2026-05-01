@@ -39,6 +39,7 @@ tsconfig.tsbuildinfo
 # Yarn cache and generated files
 .yarn/cache/
 .yarn/__virtual__/
+.yarn/install-state.gz
 .pnp.cjs
 .pnp.loader.mjs
 
