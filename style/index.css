@@ -11,18 +11,9 @@
   border-top: 1px solid var(--jp-border-color2);
 }
 
-/* ---- Generate container ---- */
-.ipyexplain-generate-container {
-  display: flex;
-  padding: 4px 8px 4px 56px;
-  background: var(--jp-layout-color1);
-  border-bottom: 1px solid var(--jp-border-color2);
-}
-
 /* ---- Shared button base ---- */
 .ipyexplain-explain-btn,
-.ipyexplain-fix-btn,
-.ipyexplain-generate-btn {
+.ipyexplain-fix-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -56,20 +47,9 @@
   background-color: var(--jp-warn-color2, #ffe69c);
 }
 
-/* ---- Generate button colours ---- */
-.ipyexplain-generate-btn {
-  background-color: var(--jp-success-color3, #d4edda);
-  color: var(--jp-content-font-color1);
-}
-
-.ipyexplain-generate-btn:hover:not(:disabled) {
-  background-color: var(--jp-success-color2, #a3d9a5);
-}
-
 /* ---- Disabled state ---- */
 .ipyexplain-explain-btn:disabled,
-.ipyexplain-fix-btn:disabled,
-.ipyexplain-generate-btn:disabled {
+.ipyexplain-fix-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

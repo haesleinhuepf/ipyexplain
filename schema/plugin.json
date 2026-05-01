@@ -1,0 +1,16 @@
+{
+  "title": "ipyexplain",
+  "description": "Settings for the ipyexplain frontend extension.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false,
+  "jupyter.lab.toolbars": {
+    "Cell": [
+      {
+        "name": "ipyexplain-wand-generate-command",
+        "command": "ipyexplain:generate-code",
+        "rank": 1000
+      }
+    ]
+  }
+}

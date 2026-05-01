@@ -12,7 +12,7 @@ POST /ipyexplain/fix
     Returns: { "fixed_code": str }
 
 POST /ipyexplain/generate
-    Body: { "prompt": str }
+    Body: { "prompt": str, "existing_code": str }
     Returns: { "code": str }
 """
 import json
@@ -131,20 +131,28 @@ def fix_code(code: str, ename: str, evalue: str, traceback: str) -> str:
 # Generate
 # ---------------------------------------------------------------------------
 
-def generate_code(prompt: str) -> str:
-    """Use an LLM to generate Python code from a natural-language prompt."""
+def generate_code(prompt: str, existing_code: str = "") -> str:
+    """Use an LLM to generate or modify Python code from a prompt."""
+    existing_code_block = existing_code.strip() or "# (empty cell)"
     messages = [
         {
             "role": "system",
             "content": (
                 "You are a helpful Python programming assistant. "
-                "When given a description, return Python code that fulfils it. "
+                "When given a request and current cell code, return Python code "
+                "that fulfils the request, using the current code as context. "
                 "Return only the code in a single ```python ... ``` block."
             ),
         },
         {
             "role": "user",
-            "content": f"Write Python code that does the following:\n\n{prompt}",
+            "content": (
+                "Current cell code:\n\n"
+                f"```python\n{existing_code_block}\n```\n\n"
+                "Requested change:\n\n"
+                f"{prompt}\n\n"
+                "Return the full updated cell code."
+            ),
         },
     ]
     raw = _chat(messages)
@@ -201,9 +209,10 @@ class GenerateHandler(APIHandler):
     def post(self):
         body = self.get_json_body()
         prompt = body.get("prompt", "")
+        existing_code = body.get("existing_code", "")
 
         try:
-            code = generate_code(prompt)
+            code = generate_code(prompt, existing_code)
             self.finish(json.dumps({"code": code}))
         except Exception as exc:
             self.log.error("ipyexplain generate error: %s", tb_module.format_exc())

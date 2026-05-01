@@ -147,12 +147,17 @@ class TestGenerateCode:
             client.chat.completions.create.return_value = mock_response
             mock_client_factory.return_value = client
 
-            generate_code("read a CSV and plot a bar chart")
+            generate_code(
+                "add a bar chart from the loaded data",
+                "import pandas as pd\ndf = pd.read_csv('data.csv')"
+            )
 
             call_kwargs = client.chat.completions.create.call_args
             messages = call_kwargs.kwargs.get("messages") or call_kwargs.kwargs["messages"]
             user_msg = next(m["content"] for m in messages if m["role"] == "user")
-            assert "read a CSV and plot a bar chart" in user_msg
+            assert "add a bar chart from the loaded data" in user_msg
+            assert "import pandas as pd" in user_msg
+            assert "df = pd.read_csv('data.csv')" in user_msg
 
 
 # ---------------------------------------------------------------------------

@@ -4,7 +4,7 @@ A JupyterLab 4.x extension that adds AI-powered buttons to notebook cells:
 
 - **💡 Explain** – when a cell throws an error, click *Explain* to get a plain-language description of what went wrong, powered by an LLM via OpenAI's API.
 - **🔧 Fix** – click *Fix* to automatically replace the erroneous cell code with an LLM-corrected version.
-- **✨ Generate Code** – every code cell has a *Generate Code* button that opens a prompt dialog; the LLM writes code from your description and inserts it into the cell.
+- **🪄 Generate Code** – a command (`ipyexplain:generate-code`) is contributed to the Cell toolbar via `jupyter.lab.toolbars`; it opens a prompt dialog and replaces the current code cell with generated code.
 
 ---
 
@@ -81,7 +81,7 @@ jupyter lab
 2. Open or create a Python notebook.
 3. Run a cell that contains an error – **💡 Explain** and **🔧 Fix** buttons
    appear below the output.
-4. Click **✨ Generate Code** in any code cell to open the prompt dialog.
+4. Click **🪄 Generate Code** in the Cell toolbar to open the prompt dialog.
 
 ---
 

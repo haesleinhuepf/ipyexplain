@@ -18,79 +18,44 @@ import { requestAPI } from './handler';
  */
 const EXPLAIN_BUTTON_CLASS = 'ipyexplain-explain-btn';
 const FIX_BUTTON_CLASS = 'ipyexplain-fix-btn';
-const GENERATE_BUTTON_CLASS = 'ipyexplain-generate-btn';
 const ERROR_BUTTONS_CLASS = 'ipyexplain-error-buttons';
-const GENERATE_CONTAINER_CLASS = 'ipyexplain-generate-container';
+const GENERATE_COMMAND = 'ipyexplain:generate-code';
 
-/**
- * Add the "Generate Code" button below the input area of a code cell.
- */
-function addGenerateButton(cell: CodeCell): void {
-  const node = cell.node;
+async function generateCodeInCurrentCell(
+  cell: CodeCell,
+  setBusyState?: (busy: boolean) => void
+): Promise<void> {
+  const result = await InputDialog.getText({
+    title: 'Generate Code',
+    label: 'Enter a prompt describing the code you want to generate:',
+    placeholder: 'e.g. read a CSV file and plot a histogram'
+  });
 
-  // Avoid adding multiple buttons
-  if (node.querySelector('.' + GENERATE_CONTAINER_CLASS)) {
+  if (!result.button.accept || !result.value) {
     return;
   }
 
-  const container = document.createElement('div');
-  container.className = GENERATE_CONTAINER_CLASS;
+  setBusyState?.(true);
 
-  const btn = document.createElement('button');
-  btn.className = GENERATE_BUTTON_CLASS;
-  btn.textContent = '✨ Generate Code';
-  btn.title = 'Generate code using an AI prompt';
-
-  btn.addEventListener('click', async () => {
-    const result = await InputDialog.getText({
-      title: 'Generate Code',
-      label: 'Enter a prompt describing the code you want to generate:',
-      placeholder: 'e.g. read a CSV file and plot a histogram'
+  try {
+    const existingCode = cell.model.sharedModel.getSource();
+    const response = await requestAPI<{ code: string }>('generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: result.value,
+        existing_code: existingCode
+      })
     });
 
-    if (!result.button.accept || !result.value) {
-      return;
-    }
-
-    btn.textContent = '⏳ Generating...';
-    btn.disabled = true;
-
-    try {
-      const response = await requestAPI<{ code: string }>('generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: result.value })
-      });
-
-      // Insert generated code into the cell
-      const model = cell.model;
-      const currentSource = model.sharedModel.getSource();
-      const newSource = currentSource
-        ? currentSource + '\n\n' + response.code
-        : response.code;
-      model.sharedModel.setSource(newSource);
-    } catch (err) {
-      console.error('ipyexplain: generate failed', err);
-      window.alert(
-        'Failed to generate code. Check that OPENAI_API_KEY is set.\n\n' + err
-      );
-    } finally {
-      btn.textContent = '✨ Generate Code';
-      btn.disabled = false;
-    }
-  });
-
-  container.appendChild(btn);
-
-  // Insert after the input wrapper
-  const inputWrapper = node.querySelector('.jp-Cell-inputWrapper');
-  if (inputWrapper && inputWrapper.parentNode) {
-    inputWrapper.parentNode.insertBefore(
-      container,
-      inputWrapper.nextSibling
+    cell.model.sharedModel.setSource(response.code);
+  } catch (err) {
+    console.error('ipyexplain: generate failed', err);
+    window.alert(
+      'Failed to generate code. Check that OPENAI_API_KEY is set.\n\n' + err
     );
-  } else {
-    node.appendChild(container);
+  } finally {
+    setBusyState?.(false);
   }
 }
 
@@ -230,13 +195,14 @@ function updateErrorButtons(cell: CodeCell): void {
 /**
  * Set up watching for a single code cell.
  */
-function watchCell(cell: CodeCell, watchedCells: WeakSet<CodeCell>): void {
+function watchCell(
+  cell: CodeCell,
+  watchedCells: WeakSet<CodeCell>
+): void {
   if (watchedCells.has(cell)) {
     return;
   }
   watchedCells.add(cell);
-
-  addGenerateButton(cell);
 
   cell.model.outputs.changed.connect(() => {
     updateErrorButtons(cell);
@@ -278,6 +244,28 @@ const plugin: JupyterFrontEndPlugin<void> = {
   requires: [INotebookTracker],
   activate: (app: JupyterFrontEnd, tracker: INotebookTracker) => {
     console.log('JupyterLab extension ipyexplain is activated!');
+
+    app.commands.addCommand(GENERATE_COMMAND, {
+      label: '🪄 Generate Code',
+      caption: 'Generate code and replace the current code cell content',
+      isEnabled: () => {
+        const panel = tracker.currentWidget;
+        const activeCell = panel?.content.activeCell;
+        return !!(activeCell && activeCell instanceof CodeCell);
+      },
+      execute: async () => {
+        const panel = tracker.currentWidget;
+        const notebook = panel?.content;
+        const activeCell = notebook?.activeCell;
+
+        if (!notebook || !(activeCell instanceof CodeCell)) {
+          window.alert('Select a code cell first.');
+          return;
+        }
+
+        await generateCodeInCurrentCell(activeCell);
+      }
+    });
 
     const watchedCells = new WeakSet<CodeCell>();
 
