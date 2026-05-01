@@ -35,21 +35,42 @@ frontend extension.
 
 ### Development install
 
+The development install works on Windows, macOS, and Linux without requiring
+Administrator/Developer Mode privileges.
+
 ```bash
 git clone https://github.com/haesleinhuepf/ipyexplain.git
 cd ipyexplain
 
-# Install JS dependencies and build the extension
+# 1. Install JupyterLab and build tools
 pip install jupyterlab
+
+# 2. Install JS dependencies
 jlpm install
-jlpm build
 
-# Install the Python package in editable mode
+# 3. Build the frontend extension
+jlpm run build
+
+# 4. Install the Python package in editable mode
+#    This also registers the server extension automatically.
 pip install -e ".[test]"
+```
 
-# Link the extension so JupyterLab picks it up
-jupyter labextension develop . --overwrite
-jupyter server extension enable --py ipyexplain
+After these steps, start JupyterLab normally:
+
+```bash
+jupyter lab
+```
+
+> **Note for Windows users:** Do *not* run `jupyter labextension develop . --overwrite`
+> — that command requires Developer Mode for symlink creation. The steps above
+> copy the pre-built extension into the package directory, so no symlinks are needed.
+
+To pick up TypeScript source changes during development, rebuild and restart:
+
+```bash
+jlpm run build
+jupyter lab
 ```
 
 ---
