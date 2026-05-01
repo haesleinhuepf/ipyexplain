@@ -12,7 +12,7 @@ POST /jupyter-vibe-coding/fix
     Returns: { "fixed_code": str }
 
 POST /jupyter-vibe-coding/generate
-    Body: { "prompt": str, "existing_code": str, "notebook_content": str }
+    Body: { "prompt": str, "existing_code": str }
     Returns: { "code": str }
 """
 import json
@@ -131,45 +131,27 @@ def fix_code(code: str, ename: str, evalue: str, traceback: str) -> str:
 # Generate
 # ---------------------------------------------------------------------------
 
-def generate_code(prompt: str, existing_code: str = "", notebook_content: str = "") -> str:
-    """Use an LLM to generate Python code from a prompt and optional context."""
+def generate_code(prompt: str, existing_code: str = "") -> str:
+    """Use an LLM to generate or modify Python code from a prompt."""
     existing_code_block = existing_code.strip() or "# (empty cell)"
-    notebook_block = notebook_content.strip()
-
-    context_parts = []
-    if notebook_block:
-        context_parts.append(
-            "Notebook JSON context (all cells, metadata, and outputs where present):\n\n"
-            f"```json\n{notebook_block}\n```"
-        )
-    if existing_code.strip():
-        context_parts.append(
-            "Current cell code:\n\n"
-            f"```python\n{existing_code_block}\n```"
-        )
-    if not context_parts:
-        context_parts.append(
-            "Current cell code:\n\n"
-            f"```python\n{existing_code_block}\n```"
-        )
-
     messages = [
         {
             "role": "system",
             "content": (
                 "You are a helpful Python programming assistant. "
-                "When given a request and notebook context, return Python code "
-                "for a single new notebook code cell that fulfils the request. "
+                "When given a request and current cell code, return Python code "
+                "that fulfils the request, using the current code as context. "
                 "Return only the code in a single ```python ... ``` block."
             ),
         },
         {
             "role": "user",
             "content": (
-                f"{'\n\n'.join(context_parts)}\n\n"
+                "Current cell code:\n\n"
+                f"```python\n{existing_code_block}\n```\n\n"
                 "Requested change:\n\n"
                 f"{prompt}\n\n"
-                "Return only the code for one new Python notebook cell."
+                "Return the full updated cell code."
             ),
         },
     ]
@@ -228,10 +210,9 @@ class GenerateHandler(APIHandler):
         body = self.get_json_body()
         prompt = body.get("prompt", "")
         existing_code = body.get("existing_code", "")
-        notebook_content = body.get("notebook_content", "")
 
         try:
-            code = generate_code(prompt, existing_code, notebook_content)
+            code = generate_code(prompt, existing_code)
             self.finish(json.dumps({"code": code}))
         except Exception as exc:
             self.log.error("jupyter-vibe-coding generate error: %s", tb_module.format_exc())
