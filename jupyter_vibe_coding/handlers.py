@@ -19,6 +19,7 @@ import json
 import os
 import re
 import traceback as tb_module
+from typing import Any
 
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
@@ -26,13 +27,14 @@ import tornado
 
 
 DEFAULT_MODEL = "gpt-4o-mini"
+RuntimeConfig = dict[str, str | bool]
 
 
 # ---------------------------------------------------------------------------
 # Helper – call OpenAI
 # ---------------------------------------------------------------------------
 
-def _get_openai_client():
+def _get_openai_client(runtime_config: RuntimeConfig | None = None):
     """Return an OpenAI client, raising a clear error if the key is missing."""
     try:
         from openai import OpenAI
@@ -41,8 +43,10 @@ def _get_openai_client():
             "The 'openai' package is required. Install it with: pip install openai"
         ) from exc
 
+    runtime_config = runtime_config or {}
     api_key = (
-        os.environ.get("JUPYTER_VIBE_CODING_API_KEY")
+        (runtime_config.get("api_key") if runtime_config.get("enabled") else None)
+        or os.environ.get("JUPYTER_VIBE_CODING_API_KEY")
         or os.environ.get("OPENAI_API_KEY")
     )
     if not api_key:
@@ -51,7 +55,10 @@ def _get_openai_client():
             "(preferred) or OPENAI_API_KEY before using jupyter-vibe-coding."
         )
 
-    base_url = os.environ.get("JUPYTER_VIBE_CODING_BASE_URL")
+    base_url = (
+        (runtime_config.get("base_url") if runtime_config.get("enabled") else None)
+        or os.environ.get("JUPYTER_VIBE_CODING_BASE_URL")
+    )
     client_kwargs = {"api_key": api_key}
     if base_url:
         client_kwargs["base_url"] = base_url
@@ -59,15 +66,44 @@ def _get_openai_client():
     return OpenAI(**client_kwargs)
 
 
-def _chat(messages: list, model: str | None = None) -> str:
+def _chat(
+    messages: list,
+    model: str | None = None,
+    runtime_config: RuntimeConfig | None = None,
+) -> str:
     """Send a chat completion request and return the assistant's text."""
-    client = _get_openai_client()
-    selected_model = model or os.environ.get("JUPYTER_VIBE_CODING_MODEL") or DEFAULT_MODEL
+    client = _get_openai_client(runtime_config=runtime_config)
+    runtime_model = runtime_config.get("model") if runtime_config and runtime_config.get("enabled") else None
+    selected_model = model or runtime_model or os.environ.get("JUPYTER_VIBE_CODING_MODEL") or DEFAULT_MODEL
     response = client.chat.completions.create(
         model=selected_model,
         messages=messages,
     )
     return response.choices[0].message.content or ""
+
+
+def _get_runtime_config(body: dict[str, Any] | None) -> RuntimeConfig | None:
+    """Parse optional request runtime config for API key, base URL and model."""
+    if not body:
+        return None
+
+    raw = body.get("config")
+    if not isinstance(raw, dict):
+        return None
+
+    enabled = bool(raw.get("enabled", False))
+    if not enabled:
+        return {"enabled": False}
+
+    def _clean(value: Any) -> str:
+        return str(value).strip() if value is not None else ""
+
+    return {
+        "enabled": True,
+        "base_url": _clean(raw.get("base_url")),
+        "api_key": _clean(raw.get("api_key")),
+        "model": _clean(raw.get("model")),
+    }
 
 
 def _extract_code_block(text: str) -> str:
@@ -83,7 +119,12 @@ def _extract_code_block(text: str) -> str:
 # Explain
 # ---------------------------------------------------------------------------
 
-def explain_error(ename: str, evalue: str, traceback: str) -> str:
+def explain_error(
+    ename: str,
+    evalue: str,
+    traceback: str,
+    runtime_config: RuntimeConfig | None = None,
+) -> str:
     """Use an LLM to explain the given Python error in plain language."""
     messages = [
         {
@@ -106,14 +147,20 @@ def explain_error(ename: str, evalue: str, traceback: str) -> str:
             ),
         },
     ]
-    return _chat(messages)
+    return _chat(messages, runtime_config=runtime_config)
 
 
 # ---------------------------------------------------------------------------
 # Fix
 # ---------------------------------------------------------------------------
 
-def fix_code(code: str, ename: str, evalue: str, traceback: str) -> str:
+def fix_code(
+    code: str,
+    ename: str,
+    evalue: str,
+    traceback: str,
+    runtime_config: RuntimeConfig | None = None,
+) -> str:
     """Use an LLM to fix the Python code that produced the given error."""
     messages = [
         {
@@ -137,7 +184,7 @@ def fix_code(code: str, ename: str, evalue: str, traceback: str) -> str:
             ),
         },
     ]
-    raw = _chat(messages)
+    raw = _chat(messages, runtime_config=runtime_config)
     return _extract_code_block(raw)
 
 
@@ -145,7 +192,11 @@ def fix_code(code: str, ename: str, evalue: str, traceback: str) -> str:
 # Generate
 # ---------------------------------------------------------------------------
 
-def generate_code(prompt: str, existing_code: str = "") -> str:
+def generate_code(
+    prompt: str,
+    existing_code: str = "",
+    runtime_config: RuntimeConfig | None = None,
+) -> str:
     """Use an LLM to generate or modify Python code from a prompt."""
     existing_code_block = existing_code.strip() or "# (empty cell)"
     messages = [
@@ -169,7 +220,7 @@ def generate_code(prompt: str, existing_code: str = "") -> str:
             ),
         },
     ]
-    raw = _chat(messages)
+    raw = _chat(messages, runtime_config=runtime_config)
     return _extract_code_block(raw)
 
 
@@ -182,13 +233,14 @@ class ExplainHandler(APIHandler):
 
     @tornado.web.authenticated
     def post(self):
-        body = self.get_json_body()
+        body = self.get_json_body() or {}
         ename = body.get("ename", "")
         evalue = body.get("evalue", "")
         traceback = body.get("traceback", "")
+        runtime_config = _get_runtime_config(body)
 
         try:
-            explanation = explain_error(ename, evalue, traceback)
+            explanation = explain_error(ename, evalue, traceback, runtime_config=runtime_config)
             self.finish(json.dumps({"explanation": explanation}))
         except Exception as exc:
             self.log.error("jupyter-vibe-coding explain error: %s", tb_module.format_exc())
@@ -201,14 +253,21 @@ class FixHandler(APIHandler):
 
     @tornado.web.authenticated
     def post(self):
-        body = self.get_json_body()
+        body = self.get_json_body() or {}
         code = body.get("code", "")
         ename = body.get("ename", "")
         evalue = body.get("evalue", "")
         traceback = body.get("traceback", "")
+        runtime_config = _get_runtime_config(body)
 
         try:
-            fixed_code = fix_code(code, ename, evalue, traceback)
+            fixed_code = fix_code(
+                code,
+                ename,
+                evalue,
+                traceback,
+                runtime_config=runtime_config,
+            )
             self.finish(json.dumps({"fixed_code": fixed_code}))
         except Exception as exc:
             self.log.error("jupyter-vibe-coding fix error: %s", tb_module.format_exc())
@@ -221,12 +280,13 @@ class GenerateHandler(APIHandler):
 
     @tornado.web.authenticated
     def post(self):
-        body = self.get_json_body()
+        body = self.get_json_body() or {}
         prompt = body.get("prompt", "")
         existing_code = body.get("existing_code", "")
+        runtime_config = _get_runtime_config(body)
 
         try:
-            code = generate_code(prompt, existing_code)
+            code = generate_code(prompt, existing_code, runtime_config=runtime_config)
             self.finish(json.dumps({"code": code}))
         except Exception as exc:
             self.log.error("jupyter-vibe-coding generate error: %s", tb_module.format_exc())
