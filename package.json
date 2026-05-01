@@ -1,6 +1,6 @@
 {
     "name": "jupyter-vibe-coding",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "JupyterLab extension that adds AI-powered Explain, Fix, and Generate buttons to notebook cells",
     "keywords": [
         "jupyter",
