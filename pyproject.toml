@@ -43,12 +43,16 @@ artifacts = ["jupyter_vibe_coding/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.sdist.shared-data]
+"jupyter_vibe_coding/labextension" = "share/jupyter/labextensions/jupyter-vibe-coding"
+"install.json" = "share/jupyter/labextensions/jupyter-vibe-coding/install.json"
 "jupyter-config/server-config/jupyter_vibe_coding.json" = "etc/jupyter/jupyter_server_config.d/jupyter_vibe_coding.json"
 
 [tool.hatch.build.targets.wheel]
 artifacts = ["jupyter_vibe_coding/labextension"]
 
 [tool.hatch.build.targets.wheel.shared-data]
+"jupyter_vibe_coding/labextension" = "share/jupyter/labextensions/jupyter-vibe-coding"
+"install.json" = "share/jupyter/labextensions/jupyter-vibe-coding/install.json"
 "jupyter-config/server-config/jupyter_vibe_coding.json" = "etc/jupyter/jupyter_server_config.d/jupyter_vibe_coding.json"
 
 [tool.hatch.build.hooks.version]

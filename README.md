@@ -62,6 +62,16 @@ After these steps, start JupyterLab normally:
 jupyter lab
 ```
 
+Verify both extensions are detected:
+
+```bash
+jupyter server extension list
+jupyter labextension list
+```
+
+You should see `jupyter_vibe_coding` in the server list and
+`jupyter-vibe-coding` in the labextension list.
+
 > **Note for Windows users:** Do *not* run `jupyter labextension develop . --overwrite`
 > — that command requires Developer Mode for symlink creation. The steps above
 > copy the pre-built extension into the package directory, so no symlinks are needed.
@@ -72,6 +82,20 @@ To pick up TypeScript source changes during development, rebuild and restart:
 jlpm run build
 jupyter lab
 ```
+
+### Troubleshooting: server loads but no GUI appears
+
+If the Python package installs but the frontend UI is missing, run:
+
+```bash
+jlpm run build
+pip install -e .
+jupyter labextension list
+```
+
+On Windows, path separators in frontend build metadata can prevent JupyterLab
+from loading the remote entry bundle. The build now normalizes that metadata
+automatically.
 
 ---
 

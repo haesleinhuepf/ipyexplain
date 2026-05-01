@@ -159,6 +159,26 @@ class TestGenerateCode:
             assert "import pandas as pd" in user_msg
             assert "df = pd.read_csv('data.csv')" in user_msg
 
+    def test_passes_notebook_context_to_messages(self):
+        mock_response = _make_mock_response("```python\nprint('ok')\n```")
+
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
+            client = MagicMock()
+            client.chat.completions.create.return_value = mock_response
+            mock_client_factory.return_value = client
+
+            generate_code(
+                "add a summary cell",
+                notebook_content='{"cells":[{"cell_type":"code","source":["x=1"]}]}'
+            )
+
+            call_kwargs = client.chat.completions.create.call_args
+            messages = call_kwargs.kwargs.get("messages") or call_kwargs.kwargs["messages"]
+            user_msg = next(m["content"] for m in messages if m["role"] == "user")
+            assert "Notebook JSON context" in user_msg
+            assert '"cell_type":"code"' in user_msg
+            assert "add a summary cell" in user_msg
+
 
 # ---------------------------------------------------------------------------
 # _extract_code_block helper

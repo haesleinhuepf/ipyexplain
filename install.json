@@ -1,0 +1,5 @@
+{
+  "packageManager": "python",
+  "packageName": "jupyter-vibe-coding",
+  "uninstallInstructions": "Use pip uninstall jupyter-vibe-coding"
+}

@@ -19,7 +19,104 @@ import { requestAPI } from './handler';
 const EXPLAIN_BUTTON_CLASS = 'jupyter-vibe-coding-explain-btn';
 const FIX_BUTTON_CLASS = 'jupyter-vibe-coding-fix-btn';
 const ERROR_BUTTONS_CLASS = 'jupyter-vibe-coding-error-buttons';
+const NOTEBOOK_GENERATE_WRAPPER_CLASS =
+  'jupyter-vibe-coding-notebook-generate-wrapper';
+const NOTEBOOK_GENERATE_BUTTON_CLASS =
+  'jupyter-vibe-coding-notebook-generate-btn';
 const GENERATE_COMMAND = 'jupyter-vibe-coding:generate-code';
+
+function appendGeneratedCodeCell(panel: NotebookPanel, code: string): void {
+  const notebookModel = panel.content.model;
+  if (!notebookModel) {
+    throw new Error('Notebook model is not available.');
+  }
+
+  const sharedModel = notebookModel.sharedModel;
+  sharedModel.insertCell(sharedModel.cells.length, {
+    cell_type: 'code',
+    source: code,
+    metadata: {}
+  });
+
+  panel.content.activeCellIndex = panel.content.widgets.length - 1;
+}
+
+async function generateCodeFromNotebook(panel: NotebookPanel): Promise<void> {
+  const notebookModel = panel.content.model;
+  if (!notebookModel) {
+    window.alert('Notebook model is not available yet. Please try again.');
+    return;
+  }
+
+  const result = await InputDialog.getText({
+    title: 'Add AI-generated code',
+    label: 'Describe the code to add as a new cell at the end of this notebook:',
+    placeholder: 'e.g. Add a plotting cell showing the top 10 categories'
+  });
+
+  const prompt = result.value?.trim() ?? '';
+  if (!result.button.accept || !prompt) {
+    return;
+  }
+
+  const wrapper = panel.node.querySelector(
+    '.' + NOTEBOOK_GENERATE_WRAPPER_CLASS
+  ) as HTMLDivElement | null;
+  const button = wrapper?.querySelector(
+    '.' + NOTEBOOK_GENERATE_BUTTON_CLASS
+  ) as HTMLButtonElement | null;
+
+  const originalLabel = button?.textContent ?? 'Add AI-generated code';
+  if (button) {
+    button.textContent = 'Generating...';
+    button.disabled = true;
+  }
+
+  try {
+    const notebookContent = JSON.stringify(notebookModel.toJSON());
+    const response = await requestAPI<{ code: string }>('generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt,
+        notebook_content: notebookContent
+      })
+    });
+
+    appendGeneratedCodeCell(panel, response.code);
+  } catch (err) {
+    console.error('jupyter-vibe-coding: notebook generate failed', err);
+    window.alert(
+      'Failed to generate notebook code. Check that OPENAI_API_KEY is set.\n\n' +
+        err
+    );
+  } finally {
+    if (button) {
+      button.textContent = originalLabel;
+      button.disabled = false;
+    }
+  }
+}
+
+function ensureNotebookGenerateButton(panel: NotebookPanel): void {
+  if (panel.node.querySelector('.' + NOTEBOOK_GENERATE_WRAPPER_CLASS)) {
+    return;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = NOTEBOOK_GENERATE_WRAPPER_CLASS;
+
+  const button = document.createElement('button');
+  button.className = NOTEBOOK_GENERATE_BUTTON_CLASS;
+  button.textContent = 'Add AI-generated code';
+  button.title = 'Generate a new code cell from a prompt using notebook context';
+  button.addEventListener('click', () => {
+    void generateCodeFromNotebook(panel);
+  });
+
+  wrapper.appendChild(button);
+  panel.node.appendChild(wrapper);
+}
 
 async function generateCodeInCurrentCell(
   cell: CodeCell,
@@ -217,6 +314,7 @@ function connectNotebook(
   watchedCells: WeakSet<CodeCell>
 ): void {
   const notebook = panel.content;
+  ensureNotebookGenerateButton(panel);
 
   const watchAllCells = () => {
     for (const widget of notebook.widgets) {
@@ -239,7 +337,7 @@ function connectNotebook(
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter-vibe-coding:plugin',
   description:
-    'Adds AI-powered Explain, Fix, and Generate buttons to notebook cells',
+    'Adds AI-powered Explain/Fix cell actions and notebook-level code generation',
   autoStart: true,
   requires: [INotebookTracker],
   activate: (app: JupyterFrontEnd, tracker: INotebookTracker) => {
