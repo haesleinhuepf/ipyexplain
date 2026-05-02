@@ -406,7 +406,7 @@ function updateErrorButtons(cell: CodeCell): void {
     try {
       const requestConfig = buildRequestConfigPayload(getStoredAdvancedConfig());
       const code = cell.model.sharedModel.getSource();
-      const response = await requestAPI<{ fixed_code: string }>('fix', {
+      const response = await requestAPI<{ fixed_code: string; fix_summary?: string }>('fix', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -420,6 +420,20 @@ function updateErrorButtons(cell: CodeCell): void {
 
       // Replace the cell's code with the fixed code
       cell.model.sharedModel.setSource(response.fixed_code);
+
+      // Show a short summary of what was fixed in the same panel style as Explain.
+      let explanationDiv = container.querySelector(
+        '.jupyter-vibe-coding-explanation'
+      ) as HTMLDivElement | null;
+      if (!explanationDiv) {
+        explanationDiv = document.createElement('div');
+        explanationDiv.className = 'jupyter-vibe-coding-explanation';
+        container.appendChild(explanationDiv);
+      }
+      explanationDiv.textContent =
+        response.fix_summary?.trim() ||
+        `Updated the code to address ${errorInfo.ename}: ${errorInfo.evalue}.`;
+      explanationDiv.style.display = 'block';
     } catch (err) {
       console.error('jupyter-vibe-coding: fix failed', err);
       window.alert(

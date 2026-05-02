@@ -9,7 +9,7 @@ POST /jupyter-vibe-coding/explain
 
 POST /jupyter-vibe-coding/fix
     Body: { "code": str, "ename": str, "evalue": str, "traceback": str }
-    Returns: { "fixed_code": str }
+    Returns: { "fixed_code": str, "fix_summary": str }
 
 POST /jupyter-vibe-coding/generate
     Body: { "prompt": str, "existing_code": str }
@@ -188,6 +188,49 @@ def fix_code(
     return _extract_code_block(raw)
 
 
+def summarize_fix(
+    original_code: str,
+    fixed_code: str,
+    ename: str,
+    evalue: str,
+    traceback: str,
+    runtime_config: RuntimeConfig | None = None,
+) -> str:
+    """Return a short plain-language summary of what was changed in a fix."""
+    if original_code.strip() == fixed_code.strip():
+        return "No code changes were needed."
+
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a helpful Python programming assistant. "
+                "Summarize code fixes in one short sentence. "
+                "Focus on what was changed and why. "
+                "Do not use markdown or bullet points."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"Original code:\n"
+                f"```python\n{original_code}\n```\n\n"
+                f"Fixed code:\n"
+                f"```python\n{fixed_code}\n```\n\n"
+                f"Error type: {ename}\n"
+                f"Error message: {evalue}\n\n"
+                f"Traceback:\n{traceback}\n\n"
+                "In one short sentence, describe what was fixed."
+            ),
+        },
+    ]
+
+    try:
+        return _chat(messages, runtime_config=runtime_config).strip()
+    except Exception:
+        return f"Updated the code to address {ename}: {evalue}."
+
+
 # ---------------------------------------------------------------------------
 # Generate
 # ---------------------------------------------------------------------------
@@ -268,7 +311,15 @@ class FixHandler(APIHandler):
                 traceback,
                 runtime_config=runtime_config,
             )
-            self.finish(json.dumps({"fixed_code": fixed_code}))
+            fix_summary = summarize_fix(
+                code,
+                fixed_code,
+                ename,
+                evalue,
+                traceback,
+                runtime_config=runtime_config,
+            )
+            self.finish(json.dumps({"fixed_code": fixed_code, "fix_summary": fix_summary}))
         except Exception as exc:
             self.log.error("jupyter-vibe-coding fix error: %s", tb_module.format_exc())
             self.set_status(500)

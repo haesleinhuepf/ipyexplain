@@ -120,7 +120,7 @@ jupyter-vibe-coding/
 | Method | Path | Body | Response |
 |--------|------|------|----------|
 | POST | `/jupyter-vibe-coding/explain` | `{ename, evalue, traceback}` | `{explanation}` |
-| POST | `/jupyter-vibe-coding/fix` | `{code, ename, evalue, traceback}` | `{fixed_code}` |
+| POST | `/jupyter-vibe-coding/fix` | `{code, ename, evalue, traceback}` | `{fixed_code, fix_summary}` |
 | POST | `/jupyter-vibe-coding/generate` | `{prompt}` | `{code}` |
 
 ---
