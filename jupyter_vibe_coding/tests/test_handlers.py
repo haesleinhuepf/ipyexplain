@@ -13,6 +13,7 @@ from jupyter_vibe_coding.handlers import (
     explain_error,
     fix_code,
     generate_code,
+    summarize_fix,
 )
 
 
@@ -124,6 +125,49 @@ class TestFixCode:
             user_msg = next(m["content"] for m in messages if m["role"] == "user")
             assert "original_code()" in user_msg
             assert "RuntimeError" in user_msg
+
+
+class TestSummarizeFix:
+    def test_returns_summary_text(self):
+        mock_response = _make_mock_response("Renamed pritn to print to fix a NameError.")
+
+        with patch("jupyter_vibe_coding.handlers._get_openai_client") as mock_client_factory:
+            client = MagicMock()
+            client.chat.completions.create.return_value = mock_response
+            mock_client_factory.return_value = client
+
+            result = summarize_fix(
+                original_code="pritn('hello')",
+                fixed_code="print('hello')",
+                ename="NameError",
+                evalue="name 'pritn' is not defined",
+                traceback="...",
+            )
+
+        assert result == "Renamed pritn to print to fix a NameError."
+
+    def test_returns_no_change_message_when_code_unchanged(self):
+        result = summarize_fix(
+            original_code="x = 1",
+            fixed_code="x = 1",
+            ename="ValueError",
+            evalue="bad value",
+            traceback="...",
+        )
+
+        assert result == "No code changes were needed."
+
+    def test_falls_back_when_summary_generation_fails(self):
+        with patch("jupyter_vibe_coding.handlers._chat", side_effect=RuntimeError("boom")):
+            result = summarize_fix(
+                original_code="x = 1 +",
+                fixed_code="x = 1 + 1",
+                ename="SyntaxError",
+                evalue="invalid syntax",
+                traceback="...",
+            )
+
+        assert result == "Updated the code to address SyntaxError: invalid syntax."
 
 
 # ---------------------------------------------------------------------------
