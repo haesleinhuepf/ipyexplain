@@ -2,7 +2,7 @@
 
 A JupyterLab 4.x extension that adds AI-powered buttons to notebook cells
 
-![](https://github.com/haesleinhuepf/ipyexplain/blob/main/docs/images/screenshot.png?raw=true)
+![](https://github.com/haesleinhuepf/ipyexplain/blob/main/docs/images/teaser.gif?raw=true)
 
 - **💡 Explain** – when a cell throws an error, click *Explain* to get a plain-language description of what went wrong, powered by an LLM via OpenAI's API.
 - **🔧 Fix** – click *Fix* to automatically replace the erroneous cell code with an LLM-corrected version.
